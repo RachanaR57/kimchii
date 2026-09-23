@@ -1,0 +1,2 @@
+# kimchii
+Kimchii Memory App
