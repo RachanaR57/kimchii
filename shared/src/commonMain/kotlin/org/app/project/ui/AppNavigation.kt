@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.savedstate.read
 import org.app.project.presentation.EntryListViewModel
 
 @Composable
@@ -27,7 +28,7 @@ fun AppNavigation(viewModel: EntryListViewModel) {
             route = "detail/{entryId}",
             arguments = listOf(navArgument("entryId") { type = NavType.StringType })
         ) { backStackEntry ->
-            val entryId = backStackEntry.arguments?.getString("entryId") ?: ""
+            val entryId = backStackEntry.arguments?.read { getStringOrNull("entryId") } ?: ""
             EntryDetailScreen(
                 entryId = entryId,
                 viewModel = viewModel,
