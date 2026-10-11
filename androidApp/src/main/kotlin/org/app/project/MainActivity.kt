@@ -12,7 +12,7 @@ import org.app.project.ui.EntryListScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-       // enableEdgeToEdge()
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val app = application as KimchiiApp
         val viewModel = EntryListViewModel(app.repository)

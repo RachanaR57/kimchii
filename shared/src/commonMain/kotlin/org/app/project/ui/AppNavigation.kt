@@ -8,32 +8,34 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.savedstate.read
 import org.app.project.presentation.EntryListViewModel
+import org.app.project.theme.KimchiiTheme
 
 @Composable
 fun AppNavigation(viewModel: EntryListViewModel) {
     val navController = rememberNavController()
+    KimchiiTheme {
+        NavHost(
+            navController = navController,
+            startDestination = "list"
+        ) {
+            composable("list") {
+                EntryListScreen(
+                    viewModel = viewModel,
+                    onEntryClick = { id -> navController.navigate("detail/$id") }
+                )
+            }
 
-    NavHost(
-        navController = navController,
-        startDestination = "list"
-    ) {
-        composable("list") {
-            EntryListScreen(
-                viewModel = viewModel,
-                onEntryClick = { id -> navController.navigate("detail/$id") }
-            )
-        }
-
-        composable(
-            route = "detail/{entryId}",
-            arguments = listOf(navArgument("entryId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val entryId = backStackEntry.arguments?.read { getStringOrNull("entryId") } ?: ""
-            EntryDetailScreen(
-                entryId = entryId,
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() }
-            )
+            composable(
+                route = "detail/{entryId}",
+                arguments = listOf(navArgument("entryId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val entryId = backStackEntry.arguments?.read { getStringOrNull("entryId") } ?: ""
+                EntryDetailScreen(
+                    entryId = entryId,
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
