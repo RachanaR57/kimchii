@@ -39,4 +39,16 @@ interface EntryDao {
 
     @Query("UPDATE entries SET isDeleted = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun softDelete(id: String, updatedAt: Long)
+
+    @Query("SELECT lastSyncedAt FROM sync_state WHERE id = 1")
+    suspend fun getLastSynced(): Long?
+
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun setSyncState(state: SyncState)
+
+    @Query("SELECT * FROM entries WHERE updatedAt > :since")
+    suspend fun getChangedSince(since: Long): List<EntryEntity>
+
+    @Insert(onConflict = androidx.room.OnConflictStrategy.REPLACE)
+    suspend fun upsert(entity: EntryEntity)
 }
