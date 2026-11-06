@@ -55,13 +55,15 @@ fun EntryDetailScreen(
     var entry by remember { mutableStateOf<Entry?>(null) }
     var editing by remember { mutableStateOf(false) }
     var notesText by remember { mutableStateOf("") }
-    var ratingText by remember { mutableStateOf("") }
+    var editRating by remember { mutableStateOf<Int?>(null) }
+    var loadFinished by remember { mutableStateOf(false) }
 
     LaunchedEffect(entryId) {
         val loaded = viewModel.getEntry(entryId)
         entry = loaded
         notesText = loaded?.notes ?: ""
-        ratingText = loaded?.rating?.toString() ?: ""
+        editRating = loaded?.rating?.coerceIn(1, MAX_RATING)
+        loadFinished = true
     }
 
     Column(
@@ -87,20 +89,19 @@ fun EntryDetailScreen(
         val e = entry
         if (e == null) {
             Spacer(Modifier.height(24.dp))
-            Text("Loading…", color = InkSoft)
+            Text(if (loadFinished) "This memory no longer exists." else "Loading…", color = InkSoft)
         } else if (editing) {
             Spacer(Modifier.height(16.dp))
             Text("Editing: ${e.city}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Ink)
-            Spacer(Modifier.height(12.dp))
-            OutlinedTextField(
-                value = ratingText,
-                onValueChange = { ratingText = it },
-                label = { Text("Rating (1-5)") },
-                singleLine = true,
-                shape = RoundedCornerShape(4.dp),
-                modifier = Modifier.fillMaxWidth()
-            )
+            Spacer(Modifier.height(16.dp))
+            Text("RATING", fontSize = 10.sp, letterSpacing = 1.sp, color = InkSoft, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(10.dp))
+            StarRating(
+                rating = editRating,
+                onRatingChange = { editRating = it },
+                fillColor = if (e.type == EntryType.FOOD) RosePale else Lime
+            )
+            Spacer(Modifier.height(18.dp))
             OutlinedTextField(
                 value = notesText,
                 onValueChange = { notesText = it },
@@ -114,7 +115,7 @@ fun EntryDetailScreen(
                     onClick = {
                         val now = Clock.System.now().toEpochMilliseconds()
                         val updated = e.copy(
-                            rating = ratingText.toIntOrNull(),
+                            rating = editRating,
                             notes = notesText.trim().ifBlank { null },
                             updatedAt = now
                         )
@@ -156,7 +157,7 @@ fun EntryDetailScreen(
                     .padding(14.dp),
                 horizontalArrangement = Arrangement.spacedBy(28.dp)
             ) {
-                e.rating?.let { DetailStat("Rating", "$it / 5") }
+                e.rating?.let { DetailStat("Rating", "$it / $MAX_RATING") }
                 e.dishes?.let { DetailStat("Dishes", it) }
                 DetailStat("Added by", e.createdBy)
             }
@@ -181,7 +182,7 @@ fun EntryDetailScreen(
                 OutlinedButton(
                     onClick = {
                         notesText = e.notes ?: ""
-                        ratingText = e.rating?.toString() ?: ""
+                        editRating = e.rating?.coerceIn(1, MAX_RATING)
                         editing = true
                     },
                     shape = RoundedCornerShape(4.dp)

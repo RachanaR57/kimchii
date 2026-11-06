@@ -6,12 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -53,8 +54,6 @@ fun EntryListScreen(
     val entries by viewModel.entries.collectAsState()
     var showAddForm by remember { mutableStateOf(false) }
 
-    Spacer(modifier = Modifier.height(200.dp))
-
     if (showAddForm) {
         AddEntryForm(
             onSave = { entry ->
@@ -66,60 +65,64 @@ fun EntryListScreen(
     } else {
         val query by viewModel.query.collectAsState()
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Paper)
-                .statusBarsPadding()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Box(modifier = Modifier.fillMaxSize().background(Paper)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp)
             ) {
-                Text(
-                    "Memories",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Ink
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Memories",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Ink
+                    )
+                    Text(
+                        "${entries.size} kept",
+                        fontSize = 12.sp,
+                        color = InkSoft,
+                        modifier = Modifier
+                            .border(1.5.dp, Ink, RoundedCornerShape(20.dp))
+                            .padding(horizontal = 10.dp, vertical = 2.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(14.dp))
+
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { viewModel.onQueryChange(it) },
+                    label = { Text("a dish · a city · anything…") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(4.dp)
                 )
-                Text(
-                    "${entries.size} kept",
-                    fontSize = 12.sp,
-                    color = InkSoft,
-                    modifier = Modifier
-                        .border(1.5.dp, Ink, RoundedCornerShape(20.dp))
-                        .padding(horizontal = 10.dp, vertical = 2.dp)
-                )
-            }
 
-            Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = query,
-                onValueChange = { viewModel.onQueryChange(it) },
-                label = { Text("a dish · a city · anything…") },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(4.dp)
-            )
-
-            Spacer(Modifier.height(16.dp))
-
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                items(entries) { entry ->
-                    EntryCard(entry = entry, onClick = { onEntryClick(entry.id) })
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                    // room at the end so the last card can scroll clear of the "+ Log" button
+                    contentPadding = PaddingValues(bottom = 96.dp)
+                ) {
+                    items(entries, key = { it.id }) { entry ->
+                        EntryCard(entry = entry, onClick = { onEntryClick(entry.id) })
+                    }
                 }
             }
-        }
 
-        Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp),
-            contentAlignment = Alignment.BottomEnd
-        ) {
             Button(
                 onClick = { showAddForm = true },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .navigationBarsPadding()
+                    .padding(16.dp)
             ) {
                 Text("+ Log")
             }
