@@ -28,6 +28,17 @@ interface EntryDao {
     )
     fun search(query: String): Flow<List<EntryEntity>>
 
+    /** Distinct cities already logged in a country, most recently used first. */
+    @Query(
+        """
+        SELECT city FROM entries
+        WHERE isDeleted = 0 AND country = :country COLLATE NOCASE
+        GROUP BY city
+        ORDER BY MAX(updatedAt) DESC
+        """
+    )
+    suspend fun citiesLoggedIn(country: String): List<String>
+
     @Query("SELECT * FROM entries WHERE id = :id LIMIT 1")
     suspend fun getById(id: String): EntryEntity?
 

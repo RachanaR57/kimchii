@@ -24,6 +24,9 @@ class EntryRepositoryImpl(
     override suspend fun getById(id: String): Entry? =
         dao.getById(id)?.toDomain()
 
+    override suspend fun citiesLoggedIn(country: String): List<String> =
+        dao.citiesLoggedIn(country)
+
     override suspend fun add(entry: Entry) =
         dao.insert(entry.toEntity())
 

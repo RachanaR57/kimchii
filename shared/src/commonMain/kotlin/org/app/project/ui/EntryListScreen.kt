@@ -56,6 +56,8 @@ fun EntryListScreen(
 
     if (showAddForm) {
         AddEntryForm(
+            loadCountries = { viewModel.countries() },
+            loadCityChoices = { country -> viewModel.cityChoices(country) },
             onSave = { entry ->
                 viewModel.addEntry(entry)
                 showAddForm = false

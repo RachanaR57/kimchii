@@ -10,6 +10,9 @@ interface EntryRepository {
 
     suspend fun getById(id: String): Entry?
 
+    /** Cities already logged in [country], most recently used first. */
+    suspend fun citiesLoggedIn(country: String): List<String>
+
     suspend fun add(entry: Entry)
 
     suspend fun update(entry: Entry)
